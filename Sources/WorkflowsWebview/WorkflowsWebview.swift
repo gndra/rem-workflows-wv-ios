@@ -3,6 +3,7 @@ import Alamofire
 import WebKit
 import CoreLocation
 import AVKit
+import SwiftProtobuf
 
 public enum WorkflowsWebviewError : Error {
     case workflowNotFound
@@ -14,17 +15,15 @@ public enum WorkflowsWebviewError : Error {
 
 public class WorkflowsWebview : NSObject, WKScriptMessageHandler {
     
-    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        debugPrint(error)
-    }
+    var jsonOptions : JSONDecodingOptions = JSONDecodingOptions()
     
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if (message.name == self.handlerName) {
-            debugPrint(message.body)
+            guard let result = (message.body as? NSDictionary) else {
+                return
+            }
             
             do {
-                let result = message.body as! NSDictionary
-                
                 let type = result["entity"] as! String
                 
                 let jsonValue = String(data: (try! JSONSerialization.data(withJSONObject: result["value"]!)), encoding: .utf8)
@@ -32,11 +31,11 @@ public class WorkflowsWebview : NSObject, WKScriptMessageHandler {
                 if (type == "step") {
                     guard self.completionStepHandler != nil else { return }
                     
-                    self.completionStepHandler!(try! Workflows_Step(jsonString: jsonValue!))
+                    self.completionStepHandler!(try! Workflows_Step(jsonString: jsonValue!, options: jsonOptions))
                 } else {
                     guard self.completionWorkflowHandler != nil else { return }
                     
-                    self.completionWorkflowHandler!(try! Workflows_Workflow(jsonString: jsonValue!))
+                    self.completionWorkflowHandler!(try! Workflows_Workflow(jsonString: jsonValue!, options: jsonOptions))
                 }
             } catch {
                 print("Cannot parse message")
@@ -68,6 +67,8 @@ public class WorkflowsWebview : NSObject, WKScriptMessageHandler {
     }
 
     public func start (uuid: String, webview wv: WKWebView!, completionHandler completion: @escaping (_ success: Bool, _ error: WorkflowsWebviewError?) -> Void) {
+        
+        jsonOptions.ignoreUnknownFields = true
 
         wv.allowsBackForwardNavigationGestures = false
         wv.configuration.userContentController.add(self, name: self.handlerName)
@@ -92,10 +93,7 @@ public class WorkflowsWebview : NSObject, WKScriptMessageHandler {
                                 return
                             }
                             
-                            let publicUrl : String = "https://1eb7-189-203-96-149.ngrok.io/\(resultData!["token_encoded"] as! String)"
-
-                            debugPrint(publicUrl)
-                            wv.load(URLRequest(url: URL(string: publicUrl)!))
+                            wv.load(URLRequest(url: URL(string: resultData!["public_url"] as! String)!))
                         
                             completion(true, nil)
                             return
