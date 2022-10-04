@@ -90,8 +90,9 @@ public class WorkflowsWebview : NSObject, WKScriptMessageHandler {
     /// - Parameters:
     ///   - uuid: UUID proveido por la API de _Workflows_.
     ///   - wv: `WKWebView` al que se le proveera del _Workflow_.
+    ///   - minimal: Remover el navbar de el layout de _Workflows_.
     ///   - completion: _Completion Handler_ para notificar si la inicializacion fue exitosa o hubo algun error.
-    public func start (uuid: String, webview wv: WKWebView!, completionHandler completion: @escaping (_ success: Bool, _ error: WorkflowsWebviewError?) -> Void) {
+    public func start (uuid: String, webview wv: WKWebView!, minimal: Bool, completionHandler completion: @escaping (_ success: Bool, _ error: WorkflowsWebviewError?) -> Void) {
         
         jsonOptions.ignoreUnknownFields = true
 
@@ -118,7 +119,11 @@ public class WorkflowsWebview : NSObject, WKScriptMessageHandler {
                                 return
                             }
                             
-                            wv.load(URLRequest(url: URL(string: resultData!["public_url"] as! String)!))
+                            var publicUrl : URLComponents = URLComponents(string: resultData!["public_url"] as! String)!
+
+                            publicUrl.queryItems?.append(URLQueryItem(name: "minimal", value: minimal ? "true" : "false"))
+                            
+                            wv.load(URLRequest(url: try publicUrl.asURL()))
                         
                             completion(true, nil)
                             return
