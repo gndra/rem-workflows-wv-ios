@@ -42,6 +42,15 @@ public struct Workflows_Step {
   /// Clears the value of `payload`. Subsequent reads from it will return its default value.
   public mutating func clearPayload() {self._payload = nil}
 
+  public var error: SwiftProtobuf.Google_Protobuf_Struct {
+    get {return _error ?? SwiftProtobuf.Google_Protobuf_Struct()}
+    set {_error = newValue}
+  }
+  /// Returns true if `error` has been explicitly set.
+  public var hasError: Bool {return self._error != nil}
+  /// Clears the value of `error`. Subsequent reads from it will return its default value.
+  public mutating func clearError() {self._error = nil}
+
   public var updatedAt: String = String()
 
   public var createdAt: String = String()
@@ -60,6 +69,7 @@ public struct Workflows_Step {
   public init() {}
 
   fileprivate var _payload: SwiftProtobuf.Google_Protobuf_Struct? = nil
+  fileprivate var _error: SwiftProtobuf.Google_Protobuf_Struct? = nil
   fileprivate var _metadata: SwiftProtobuf.Google_Protobuf_Struct? = nil
 }
 
@@ -125,6 +135,7 @@ extension Workflows_Step: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     3: .same(proto: "status"),
     7: .same(proto: "step"),
     8: .same(proto: "payload"),
+    9: .same(proto: "error"),
     6: .standard(proto: "updated_at"),
     5: .standard(proto: "created_at"),
     4: .same(proto: "metadata"),
@@ -144,6 +155,7 @@ extension Workflows_Step: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
       case 6: try { try decoder.decodeSingularStringField(value: &self.updatedAt) }()
       case 7: try { try decoder.decodeSingularStringField(value: &self.step) }()
       case 8: try { try decoder.decodeSingularMessageField(value: &self._payload) }()
+      case 9: try { try decoder.decodeSingularMessageField(value: &self._error) }()
       default: break
       }
     }
@@ -178,6 +190,9 @@ extension Workflows_Step: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     try { if let v = self._payload {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 8)
     } }()
+    try { if let v = self._error {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 9)
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -187,6 +202,7 @@ extension Workflows_Step: SwiftProtobuf.Message, SwiftProtobuf._MessageImplement
     if lhs.status != rhs.status {return false}
     if lhs.step != rhs.step {return false}
     if lhs._payload != rhs._payload {return false}
+    if lhs._error != rhs._error {return false}
     if lhs.updatedAt != rhs.updatedAt {return false}
     if lhs.createdAt != rhs.createdAt {return false}
     if lhs._metadata != rhs._metadata {return false}
