@@ -97,6 +97,8 @@ public class WorkflowsWebview : NSObject, WKScriptMessageHandler {
         jsonOptions.ignoreUnknownFields = true
 
         wv.allowsBackForwardNavigationGestures = false
+        
+        wv.configuration.userContentController.removeScriptMessageHandler(forName: self.handlerName)
         wv.configuration.userContentController.add(self, name: self.handlerName)
         
         let authHeaders = HTTPHeaders([
