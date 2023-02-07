@@ -101,6 +101,14 @@ public class WorkflowsWebview : NSObject, WKScriptMessageHandler {
         wv.configuration.userContentController.removeScriptMessageHandler(forName: self.handlerName)
         wv.configuration.userContentController.add(self, name: self.handlerName)
         
+        wv.configuration.allowsInlineMediaPlayback = true
+        
+        if #available(iOS 10.0, *) {
+            wv.configuration.mediaTypesRequiringUserActionForPlayback = []
+        } else {
+            wv.configuration.mediaPlaybackRequiresUserAction = false
+        }
+        
         let authHeaders = HTTPHeaders([
             "Rem-ApiKey": self.apiKey
         ])
